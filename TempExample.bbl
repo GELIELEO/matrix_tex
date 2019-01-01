@@ -1,30 +1,12 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 
-\bibitem{Harpold1979Shuttle}
-HARPOLD J C,GRAVES C A.Shuttle entry guidance[J].The Journal of the
-  Astronautical Sciences,1979,37(3):239-268.
+\bibitem{gaoxiang14slam}
+高翔.
+\newblock {\em 视觉SLAM 14讲}.
 
-\bibitem{Yu2011Guidance}
-YU W B,CHEN W C.Guidance scheme for glide range maximization of a hypersonic
-  vehicle,AIAA-2011-6714[R].Reston:AIAA,2011.
-
-\bibitem{Hu2015Steady}
-胡锦川,陈万春.高超声速飞行器平稳滑翔弹道设计方法[J].北京航空航天大学学报,2015,41(8):1464-1475.\\
-  HU J C,CHEN W C.Steady glide trajectory planning method for hypersonic
-  reentry vehicle[J].Journal of Beijing University of Aeronautics and
-  Astronautics,2015,41(8):1464-1475(in Chinese).
-
-\bibitem{Laning1956Random}
-LANING J H,BATTIN R H.Random processes in automatic control[M].New
-  York:McGraw-Hill Book Company, Inc.,1956:225-253.
-
-\bibitem{Zarchan2013Tactical}
-ZARCHAN P.Tactical and strategic missile guidance[M].6th
-  ed.Reston:AIAA,2013:35-105.
-
-\bibitem{Zadeh1963Linear}
-ZADEH L A,DESOER C A.Linear system theory: the state space approach[M].New
-  York:McGraw-Hill,1963:337-367.
+\bibitem{maer}
+马尔.
+\newblock {\em 视觉计算理论}.
 
 \bibitem{Weiss2005Adjoint}
 WEISS M.Adjoint method for missile performance analysis on state-space
