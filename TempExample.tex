@@ -81,6 +81,8 @@
 %\end{CAbstractJBUAA}
 \begin{CAbstractJBUAA}
 在视觉SLAM中，有一个极其重要的组成部分：视觉里程计。其作为视觉SLAM的前端，是机器人建图与定位的基础所在。本文主要介绍视觉SLAM中视觉里程计的原理和建模过程，通过对视觉里程计的建模，理解视觉SLAM中后端优化部分的工 作目标之所在。进而通过整个视觉SLAM原理的阐述，对SLAM这个机器人领域中的分支有进一步的理解，对SLAM的基本问题及关键技术环节有一个清醒的认识。
+=======
+在视觉SLAM中，有一个极其重要的组成部分：视觉里程计。其作为视觉SLAM的前端，是机器人建图与定位的基础所在。本文主要介绍视觉SLAM中视觉里程计的原理和建模过程，通过对视觉里程计的建模，理解视觉SLAM中后端优化部分的工作目标之所在。进而通过整个视觉SLAM原理的阐述，对SLAM这个机器人领域中的分支有进一步的理解，对SLAM的基本问题及关键技术环节有一个清楚的认识。
 \end{CAbstractJBUAA}
 
 
@@ -111,7 +113,7 @@
 
 
 \section{引言}
-Simultaneous Localization And Mapping，简称SLAM，译作“同时定位与建图”，是近年来机器人领域中发展起来的技术分支，它指的是通过搭载特定的传感器，在没有先验环境信息的情况下，于运动中建立环境的模型并同时估计自己的运动状态。本文所讲的视觉SLAM就是将相机作为传感器进行建图与定位的技术。视觉SLAM这项技术可以四部分组成视觉\citeBUAA{gaoxiang14slam},如图\ref{fig_id1_workflow}为经典视觉SLAM工作流程框架，整个视觉SLAM具体工作过程如下：
+Simultaneous Localization And Mapping，简称SLAM，译作“同时定位与建图”，是近年来机器人领域中发展起来的技术分支，它指的是通过搭载特定的传感器，在没有先验环境信息的情况下，于运动中建立环境的模型并同时估计自己的运动状态。本文所讲的视觉SLAM就是将相机作为传感器进行建图与定位的技术。视觉SLAM这项技术可以四部分组成视觉\citeBUAA{gaoxiang14slam},如图\ref{fig_id1_workflow}为经典视觉SLAM工作流程框架，整个视觉SLAM具体工作过程如下\cite{gaoxiang14slam}：
 
 1.\textbf{传感器数据的读取}。这是将外界环境抽象为数据的过程，也是计算机理解世界的第一步，后续过程其实就是对数据的处理过程，所以在这个阶段数据采集的好坏直接影响到后续工作数量与质量。也因此，选择质量较好的传感器通常是最为明智的选择，因为这能大大减少数据处理的工作量和难度。
 
@@ -125,30 +127,104 @@ Simultaneous Localization And Mapping，简称SLAM，译作“同时定位与建
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics [scale=0.6,trim=0 0 0 0]{./image/SLAM_workflow}
+	\includegraphics [scale=0.45,trim=0 0 0 0]{./image/SLAM_workflow}
 	\bicaption[fig_id1_workflow]{图}{\centering 视觉SLAM工作流程图}{Fig.}{\centering Workflow of Visual SLAM}
 \end{figure}
 
 以上是经典的视觉SLAM工作流程框架，其在过去的几十年间已有较为丰硕的研究成果，这个框架所包含的研究成果基本定型。在现有的开源机器人程序库中，完全可以依靠这些现有算法搭建一个SLAM系统。由于本文主要研究视觉里程计，所以，以下对视觉里程计进行详细的介绍。
 
-视觉里程计关心的是相邻图像间的相机的运动，也即是如何通过相邻的两幅图像估计相机的位姿变换情况。在现实世界中，人眼能够很轻易地通过视觉中镜像的变换感受出自己身体的运动在状态\cite{maer}，在图\ref{fig_id2_eye}中，我们人眼能够很轻易的通过图像从左到右的变化猜测出人眼向左旋转或者移动了，因为左边的景物明显变多了。但是如果进一步深究，人眼移动了多少，这样一个量化的问题是难以回答的，因为我们的直觉对数字并不敏感。所以，计算机相比我们，其优势就是可量化地表示出这种量化。在计算机视觉中，图像的表示方式是一个数值矩阵，如何通过一系列的数值矩阵估计相机的运动，就是视觉里程计的实质工作。
+视觉里程计关心的是相邻图像间的相机的运动，也即是如何通过相邻的两幅图像估计相机的位姿变换情况。在现实世界中，人眼能够很轻易地通过视觉中镜像的变换感受出自己身体的运动在状态\cite{maer}，在图\ref{fig_id2_eye}中，我们人眼能够很轻易的通过图像从左到右的变化猜测出人眼向左旋转或者移动了，因为左边的景物明显变多了。但是如果进一步深究，人眼移动了多少，这样一个量化的问题是难以回答的，因为我们的直觉对数字并不敏感。所以，计算机相比我们，其优势就是可量化地表示出这种量化。在计算机视觉中，图像的表示方式是一个数值矩阵，如何通过一系列的数值矩阵估计相机的运动，就是视觉里程计的本质工作。但是，如果仅仅通过视觉里程计来估计相机的运动轨迹，难免会出现漂移，因为视觉里程计是独立地估计两幅间的运动，每次估计只与上一幅图像相关，所以就会出现误差累计的现象。这导致经过一段时间后，估计的轨迹不再准确。解决这个问题就是后端检测的任务，在此不细讲。
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics [scale=0.6,trim=0 0 0 0]{./image/eyes_image}
+	\includegraphics [scale=0.5,trim=0 0 0 0]{./image/eyes_image}
 	\bicaption[fig_id2_eye]{图}{\centering 运动产生的图片变化}{Fig.}{\centering Workflow of Visual SLAM}
 \end{figure}
 
-\section{题目、作者和单位}
+\section{在SLAM问题中为什么需要视觉里程计}
 \enlargethispage{-3.3cm}
-题目应简洁、准确，能恰如其分地概括研究的范围和深度，避免使用希腊字母和上下标。英文题名中第一个单词首字母大写，其余小写(专有名词首字母大写)\citeBUAA{Weiss2005Adjoint,Zarchan1979Complete,Weiss2005Handover}。
+理解这个问题需要对SLAM过程进行数学语言的描述。根据文献\cite{dummies}介绍，假设环境有许多\textbf{路标}（landmark）组成，将机器人连续运动变成离散的时刻：t=1、2......K。图\ref{fig_id3_landmark}为机器人在某一时刻的运动及工作状态，其中五角星表示路标，虚线的三角形表示里程计估计的机器人的位置（称为位置1），淡实线表示机器人根据对landmark的观测确定的机器人位置（称为位置2），深实线表示机器人实际所在的位置(称为位置3)。假设机器人携带一个测量自身运动信息的传感器，通过这个传感器可以测量自身运动的里程信息，这个传感器可以是码盘，IMU或者相机（此时则是视觉里程计），但无论这个传感器是什么，我们都可以将机器人的运动状态表示如下：
 
-作者署名及署名排序应协商一致。姓名的英译采用汉语拼音，姓前名后，姓全大写，名首字母大写。如：ZHANG Ying（张颖），WANG Xilian（王锡联），ZHUGE Hua（诸葛华）。
+\begin{equation}s
+\label{sport}
+x_{k} = S(x_{k-1},u_{k},w_{k})
+\end{equation}
 
-通讯作者一般为导师或课题负责人。
+这里 $u_{k}$ 是k时刻传感器的读数,$w_{k}$是k时刻的噪声，$u_{k-1}$是上一时刻机器人所在的位置，$u_{k}$是机器人当前所在位置。机器人运动的原点为机器人开机后机器人所在的位置。式\ref{sport}也称为机器人的运动方程。与运动方程相对的，称为观测方程:
 
-单位应为论文首次投稿时的作者所在单位。单位的著录一般应到系一级，单位应著录全称，单位名称的英译应统一正确\citeBUAA{Lin1996ResearchAdjoint,Zou2001Adjoint}。
+\begin{equation}
+\label{observe}
+z_{k,j}=O(y_{j},x_{k},v_{k,j})
+\end{equation}
 
+式中$ y_{j} $为机器人在$ x_{k} $位置观测到的路标，$ z_{k,j} $ 为k时刻，根据该路标产生的观测数据，$ v_{k,j} $代表噪声。因为该方程是根据外界观测信息对机器人自身的信息（比如位置信息）进行估计，所以式\ref{observe}称为观测方程。
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics [scale=0.4,trim=0 0 0 0]{./image/landmark}
+	\bicaption[fig_id3_landmark]{图}{\centering 机器人自我定位原理}{Fig.}{\centering Workflow of Visual SLAM}
+\end{figure}
+
+结合式\ref{sport} \ref{observe}以及图\ref{fig_id3_landmark},机器人根据运动方程计算出机器人在k时刻处于位置1，然后又根据观测方程观测自己位于位置二。可以看出，运动方程对机器人自身位置的估计准确度比观测方程低。但是这是不是意味这里程计信息是多余的呢？将上面的分析过程进一步拓展，令$ x_{k} = [x,y,\theta]_{k}^{T} $，即机器人的位姿。$ u_{k} = [\delta x ,\delta y, \delta \theta] $，代入式\ref{sport}
+
+\begin{equation}
+\left[ \begin{array}{ccc}
+x\\
+y\\
+\theta
+\end{array} 
+\right ]_{k} = \left[ \begin{array}{ccc}
+x\\
+y\\
+\theta
+\end{array} 
+\right ]_{k-1} + \left[ \begin{array}{ccc}
+\delta x\\
+\delta y\\
+\delta \theta
+\end{array} 
+\right ]_{k} + w_{k}
+\end{equation}
+
+对于观测方程，我们假设路标$ y_{j} = [p_{x},p_{y}]^{T} $，观测数据$ z_{k,j} = [r,\theta]^{T} $,其中r为机器人相对路标的距离和夹角。可将观测方程写成：
+
+\begin{equation}
+\left[ \begin{array}{ccc}
+r\\
+\theta
+\end{array} 
+\right ] = \left[ \begin{array}{ccc}
+\sqrt{(p_{x}-x)^2 + (p_{y}-y)^2}\\
+\arctan \dfrac{p_{y}-y}{p_{x}-x}
+\end{array} 
+\right ] + v
+\end{equation}
+
+以上两个方程描述了SLAM的基本过程，由于使用的传感器不同，具体方程的具体形式根据实际的情况变化而变化，。根据以上两个方程可以解决SLAM的基本问题：定位与建图，事实上，定位问题指的就是估计机器人位姿x的问题，建图问题则是对路标y进行估计的问题。这样，SLAM问题其实就是对x,y的在噪声中的状态估计问题。而状态估计问题的求解，根据噪声是否服从高斯分布、运动和观测方程是否线性，分为高斯/非高斯和线性/非线性系统\cite{robust},所以有如下四种SLAM系统：
+
+\begin{table}[h]
+	\centering
+	\captionnamefont{\xiaowuhao\bf }
+	\captiontitlefont{\xiaowuhao\bf }
+	\bicaption[labelTabtab1]{表}{SLAM系统类型}{Table}{Type of SLAM}
+	\renewcommand\tabcolsep{1em}
+	% \xiaowuhao \selectfont
+	% \renewcommand{\arraystretch}{0.8}
+	% \fontsize{9}{11}\selectfont
+	\begin{tabular}{cc}
+		\toprule
+		{编号} &  {类型}\\
+		\midrule 
+		1 & 线性高斯 \\
+		2 & 非线性非高斯\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+线性高斯系统式最简单的系统，其最优估计可由卡尔曼滤波（Kalman Filter，KF）给出，而非线性非高斯系统则是最复杂的系统，其代表的求解方法有拓展卡尔曼滤波（Extend Kalman Filter，EKF）和非线性优化\cite{gaoxiang14slam}。由于现实环境基本多是非线性非高斯，于机器人鲁棒性而言，将SLAM系统设计成非线性非高斯的，明显是更优的。事实上，最早的实时视觉SLAM系统则是基于EKF开发的，但是由于EKF假设噪声分布是高斯分布，误差是线性化的，所以EKF还不那么符合现实环境的特点。而后人们开始使用粒子滤波器，随着计算机能力以及非线性优化技术的提高，当前主流的SLAM基本偏向于使用非线性优化技术。
+
+至此，还未回答本节的目标问题：为什么SLAM系统需要视觉里程计？似乎根本不需要运动方程，我们就可以根据观测方程得到机器人的位置。事实上，由于SLAM问题是一个状态估计问题，所以机器人其实只是“猜测”自己实际所在的位置以及路标的位置，机器人
+ 
 \section{正文}
 \subsection{量、单位、公式}
 \subsubsection{公式编排}
@@ -412,8 +488,8 @@ $V$=\SI{36893.426}{\cubic\meter}%%数字会小一些，默认的是公式字体�
 \pagestyle{fancy}
 \fancyhf{}
 \lhead{}
-\chead{\vspace{0.8cm}\centering{{\CJKfamily{hei}\xiaowuhao 北\ 京\ 航\ 空\ 航\ 天\ 大\ 学\ 学\ 报}\\[-0.5ex]
-{{\xiaowuhao Journal of Beijing University of Aeronautics and Astronautics}}}}
+\chead{\vspace{0.8cm}\centering{{\CJKfamily{hei}\xiaowuhao 特别鸣谢tex如此好用的写作工具}\\[-0.5ex]
+{{\xiaowuhao}}}}
 \rhead{}
 \lfoot{}
 \cfoot{}

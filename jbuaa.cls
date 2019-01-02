@@ -269,8 +269,8 @@ The LaTeX template for Journal of BUAA]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \fancypagestyle{plain}{ \fancyhf{}\vspace{10pt}
 \lhead{}
-\chead{\vspace{0.6cm}\centering{{\CJKfamily{hei}\xiaowuhao 北\ 京\ 航\ 空\ 航\ 天\ 大\ 学\ 学\ 报}\\[-0.5ex]
-{{\xiaowuhao Journal of Beijing University of Aeronautics and Astronautics}}}}
+\chead{\vspace{0.6cm}\centering{{\CJKfamily{hei}\xiaowuhao 国\ 防\ 科\ 技\ 大\ 学}\\[-0.5ex]
+{{\xiaowuhao }}}}
 \rhead{}
 \lfoot{}
 \cfoot{}
@@ -284,7 +284,7 @@ The LaTeX template for Journal of BUAA]
 \pagestyle{fancy} 
 \fancyhf{}
 % \fancyhead[RE]{{\footnotesize 第~xx~卷~~~}} 
-\fancyhead[CE]{{\footnotesize 北京航空航天大学学报}}
+\fancyhead[CE]{{\footnotesize 感谢tex}}
 \fancyhead[LE,RO]{~~~\footnotesize\thepage ~~~}
 % \fancyhead[LO]{{\footnotesize ~~~第~x~期}}
 \lfoot{}
