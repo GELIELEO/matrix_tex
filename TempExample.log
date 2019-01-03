@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2018.11.21)  2 JAN 2019 10:36
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2018.11.21)  2 JAN 2019 22:55
 entering extended mode
 **TempExample.tex
 (TempExample.tex
@@ -2535,7 +2535,13 @@ File: ./image/tu2.png Graphic file (type QTm)
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[4]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [4]
 LaTeX Font Info:    Calculating math sizes for size <7.875> on input line 334.
 Requested font "Times New Roman/OT:script=latn;language=DFLT;mapping=tex-text;m
 apping=tex-text;" at 5.51247pt
@@ -2590,13 +2596,14 @@ Overfull \hbox (3.89983pt too wide) in paragraph at lines 363--363
  [] 
  []
 
-Requested font "Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text
-;mapping=tex-text;" at 10.5pt
- -> C:/windows/Fonts/timesi.ttf
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [5]
+Requested font "Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text
+;mapping=tex-text;" at 10.5pt
+ -> C:/windows/Fonts/timesi.ttf
+
 (TempExample.bbl
 Requested font "Times New Roman/B/OT:script=latn;language=DFLT;mapping=tex-text
 ;mapping=tex-text;" at 7.875pt
@@ -2607,6 +2614,9 @@ Requested font "Times New Roman/I/OT:script=latn;language=DFLT;mapping=tex-text
 Requested font "[SIMKAI.TTF]/OT:script=hani;language=DFLT;mapping=tex-text;" at
  7.875pt
  -> C:/windows/Fonts/SIMKAI.TTF
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
 ) [6]
 Requested font "FangSong/OT:script=hani;language=DFLT;mapping=tex-text;" at 9.0
 pt
@@ -2655,7 +2665,7 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  35325 strings out of 428790
  733618 string characters out of 3167856
- 735260 words of memory out of 3000000
+ 731260 words of memory out of 3000000
  38035 multiletter control sequences out of 15000+200000
  50785 words of font info for 273 fonts, out of 3000000 for 9000
  1096 hyphenation exceptions out of 8191
